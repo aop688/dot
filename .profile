@@ -25,13 +25,6 @@ shopt -s lithist      # don't replace newlines with semicolons in history
 shopt -s cdspell      # fix typos when changing directories
 shopt -u hostcomplete # disable hostname completion, which is fine but
 
-# Java
-#export CLICOLOR=1
-#export LSCOLORS=ExGxgxgxBxFxFxbxbxExEx
-#export PS1="\[\e[1;35m\]\w\[\e[33;1m\]\$(__my_ps1) \[\e[m\]\\$ "
-#export LSCOLORS="CxfxcxdxCxegedabagacad"
-#export PS1='\[\e[1;32m\]\u@\h:\w\$\[\e[m\] '
-
 __my_ps1() {
   local branch
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -39,7 +32,13 @@ __my_ps1() {
     echo "  $branch"
   fi
 }
-export PS1='$(ret=$?; echo "\[\e[1;36m\]\w\[\e[33;1m\]$(__my_ps1) $(if [ $ret -eq 0 ]; then echo \[\e[32m\]❯\[\e[m\]; else echo \[\e[31m\]❯\[\e[m\]; fi)") '
+#export CLICOLOR=1
+#export LSCOLORS=ExGxgxgxBxFxFxbxbxExEx
+#export PS1="\[\e[1;35m\]\w\[\e[33;1m\]\$(__my_ps1) \[\e[m\]\\$ "
+#export LSCOLORS="CxfxcxdxCxegedabagacad"
+#export PS1='\[\e[1;32m\]\u@\h:\w\$\[\e[m\] '
+#export PS1='$(ret=$?; echo "\[\e[1;36m\]\w\[\e[33;1m\]$(__my_ps1) $(if [ $ret -eq 0 ]; then echo \[\e[32m\]❯\[\e[m\]; else echo \[\e[31m\]❯\[\e[m\]; fi)") '
+export PS1='\w$(__my_ps1) ❯ '
 
 #alias blea='brew leaves | xargs brew deps --installed --for-each | sed "s/^.*:/$(tput setaf 4)&$(tput sgr0)/"'
 #alias bdeps='brew deps --tree --installed'
