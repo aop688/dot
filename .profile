@@ -14,6 +14,37 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 # kitty icat
 [[ "$TERM" == "xterm-kitty" ]] && alias icat="kitty +kitten icat --align=left"
 
+if [ -n "$KITTY_PID" ]; then
+  printf '\033]2;Kitty\007'
+fi
+
+set_kitty_title() {
+  local home="${HOME%/}"
+  local path="$PWD"
+
+  if [[ "$path" == "$home" ]]; then
+    path="~"
+  elif [[ "$path" == "$home"/* ]]; then
+    path="~${path#$home}"
+  fi
+
+  local branch=""
+  if branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); then
+    printf "\033]0;%s %s\007" "$path" "$branch"
+  else
+    printf "\033]0;%s\007" "$path"
+  fi
+}
+
+if [[ -z "$PROMPT_COMMAND" ]]; then
+  PROMPT_COMMAND="set_kitty_title"
+else
+  case "$PROMPT_COMMAND" in
+  *set_kitty_title*) ;;
+  *) PROMPT_COMMAND="${PROMPT_COMMAND%;};set_kitty_title" ;;
+  esac
+fi
+
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
