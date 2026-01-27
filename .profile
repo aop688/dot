@@ -69,22 +69,10 @@ __my_ps1() {
 #export LSCOLORS="CxfxcxdxCxegedabagacad"
 #export PS1='\[\e[1;32m\]\u@\h:\w\$\[\e[m\] '
 #export PS1='$(ret=$?; echo "\[\e[1;36m\]\w\[\e[33;1m\]$(__my_ps1) $(if [ $ret -eq 0 ]; then echo \[\e[32m\]❯\[\e[m\]; else echo \[\e[31m\]❯\[\e[m\]; fi)") '
-export PS1='\w$(__my_ps1) ❯ '
+#export PS1='\w$(__my_ps1) \$ '
+export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
 
-#alias blea='brew leaves | xargs brew deps --installed --for-each | sed "s/^.*:/$(tput setaf 4)&$(tput sgr0)/"'
-#alias bdeps='brew deps --tree --installed'
-alias now="date '+%Y-%m-%d %H:%M:%S'"
 alias aplay="clear && ls . | while read;do basename \"\$REPLY\";afplay -q 1 \"\$REPLY\";wait;done"
-
-man() {
-  LESS_TERMCAP_md=$'\e[1;34m' \
-    LESS_TERMCAP_me=$'\e[0m' \
-    LESS_TERMCAP_se=$'\e[0m' \
-    LESS_TERMCAP_so=$'\e[1;36m' \
-    LESS_TERMCAP_ue=$'\e[0m' \
-    LESS_TERMCAP_us=$'\e[1;32m' \
-    command man "$@"
-}
 
 lsnc() {
   lsof -i -n -P -c 16 | awk '{print $1 "\t\t" $9 "  " $10}' | uniq | grep -v COMMAND | egrep -v "\->127.0.0.1:.*"
@@ -98,7 +86,6 @@ alias ls="ls --color=auto"
 alias rm="rm -i"
 alias l="ls -alh"
 alias df='df -h'
-#alias la="ls -alh"
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
 alias fgrep="fgrep --color=auto"
@@ -112,7 +99,7 @@ alias pon="networksetup -setsocksfirewallproxystate Wi-Fi on;networksetup -setwe
 alias poff="networksetup -setsocksfirewallproxystate Wi-Fi off;networksetup -setwebproxystate Wi-Fi off;networksetup -setsecurewebproxystate Wi-Fi off"
 alias epp="export https_proxy=http://127.0.0.1:1081;export http_proxy=http://127.0.0.1:1081;export all_proxy=socks5://127.0.0.1:1080"
 alias batt="pmset -g batt"
-alias ipen0="ipconfig getifaddr en0"
+#alias ipen0="ipconfig getifaddr en0"
 alias nosleep='caffeinate -d -i -t 1800'
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -122,7 +109,7 @@ take() { mkdir -p "$1" && cd "$1"; }
 alias cp='cp -v'
 alias mv='mv -v'
 #alias batt="pmset -g batt | grep -Eo '\d+%'"
-ip() { ipconfig getifaddr "$1"; }
+#ip() { ipconfig getifaddr "$1"; }
 ### Do the proxy setup
 #export http_proxy=`scutil --proxy | awk '/HTTPEnable/ { enabled = $3; } /HTTPProxy/ { server = $3; } /HTTPPort/ { port = $3; } END { if (enabled == "1") { print "http://" server ":" port; } }'`
 #export https_proxy=`scutil --proxy | awk '/HTTPSEnable/ { enabled = $3; } /HTTPSProxy/ { server = $3; } /HTTPSPort/ { port = $3; } END { if (enabled == "1") { print "https://" server ":" port; } }'`
@@ -131,6 +118,8 @@ ip() { ipconfig getifaddr "$1"; }
 #export all_proxy=`scutil --proxy | awk '/SOCKSEnable/ { enabled = $3; } /SOCKSProxy/ {server = $3;} /SOCKSPort/ { port = $3 } END { if ( enabled == "1") { print "socks://" server ":" port; }}'`
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
+
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
 #export PYENV_ROOT="$HOME/.pyenv"
 #[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
