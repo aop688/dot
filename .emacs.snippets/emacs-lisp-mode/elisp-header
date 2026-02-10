@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# name: elisp header
+# key: header
+# --
+;;; ${1:filename}.el --- ${2:Description} -*- lexical-binding: t -*-
+
+;; Author: ${3:`user-full-name`}
+;; Keywords: ${4:keywords}
+
+;; This file is NOT part of GNU Emacs.
+
+;;; Commentary:
+
+;; $2
+
+;;; Code:
+
+$0
+
+(provide '$1)
+;;; $1.el ends here
