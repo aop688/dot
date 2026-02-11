@@ -50,6 +50,7 @@
 (show-paren-mode 1)
 (rc/require-theme 'gruber-darker)
 (set-face-attribute 'minibuffer-prompt nil :foreground "yellow")
+(setq initial-scratch-message ";; Happy Hacking!\n")
 (when (version<= "26.0.50" emacs-version)
   (setq display-line-numbers-type 'relative)
   (global-display-line-numbers-mode))

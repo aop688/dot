@@ -70,7 +70,7 @@ __my_ps1() {
 #export PS1='\[\e[1;32m\]\u@\h:\w\$\[\e[m\] '
 #export PS1='$(ret=$?; echo "\[\e[1;36m\]\w\[\e[33;1m\]$(__my_ps1) $(if [ $ret -eq 0 ]; then echo \[\e[32m\]❯\[\e[m\]; else echo \[\e[31m\]❯\[\e[m\]; fi)") '
 #export PS1='\w$(__my_ps1) \$ '
-export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
+export PS1='\[\033[01;32m\]\u@\h:\[\033[01;34m\]\w \$\[\033[00m\] '
 
 alias aplay="clear && ls . | while read;do basename \"\$REPLY\";afplay -q 1 \"\$REPLY\";wait;done"
 
@@ -84,7 +84,8 @@ function sha256sum() { openssl sha256 "$@" | awk '{print $2}'; }
 alias more='less'
 alias ls="ls --color=auto"
 alias rm="rm -i"
-alias l="ls -alh"
+alias l="ls -lh"
+alias la="ls -alh"
 alias df='df -h'
 alias grep="grep --color=auto"
 alias egrep="egrep --color=auto"
@@ -124,3 +125,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 #export PYENV_ROOT="$HOME/.pyenv"
 #[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 #eval "$(pyenv init -)"
+
+# uv
+export PATH="/Users/sa/.local/bin:$PATH"
