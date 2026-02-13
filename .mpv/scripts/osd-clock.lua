@@ -1,95 +1,74 @@
--- Show OSD clock
---
--- Shows OSD sclock periodicaly with many configurable options,
--- OSD options like duration, alignment, border, scale could be set in ~/.config/mpv/mpv.conf
--- OSD-clock configurable options:
---   interval ... how often to show OSD clock, either seconds or human friendly format like '1h 33m 5s' is supported (default '15m')
---   format   ... date format string (default "%H:%M")
---   duration ... how long [in seconds] OSD stays, fractional values supported (default 1.2)
---   key      ... to bind show OSD clock on request (false for no binding; default 'h' key)
---   name     ... symbolic name (can be used in input.conf, see mpv doc for details; default 'show-clock')
---
--- To customize configuration place osd-clock.conf into ~/.config/mpv/lua-settings/ and edit
---
--- Place script into ~/.config/mpv/scripts/ for autoload
---
--- GitHub: https://github.com/blue-sky-r/mpv/tree/master/scripts
+-- OSD 时钟显示
+-- 定期显示当前时间，支持自定义格式和间隔
 
-local options = require("mp.options")
-local utils = require("mp.utils")
+local mp = require "mp"
+local msg = require "mp.msg"
+local utils = require "mp.utils"
+local options = require "mp.options"
 
--- defaults
+-- 默认配置
 local cfg = {
-	interval = "15m",
-	format = "%H:%M",
-	duration = 2.5,
-	key = "h",
-	name = "show-clock",
+    interval = "15m",    -- 显示间隔
+    format = "%H:%M",    -- 时间格式
+    duration = 2.5,      -- OSD 显示时长
+    key = "h",           -- 手动触发快捷键
+    name = "show-clock", -- 命令名
 }
 
--- human readable time format to seconds: 15m 3s -> 903
-local function htime2sec(hstr)
-	local s = tonumber(hstr)
-	-- only number withoout units
-	if s then
-		return s
-	end
-	-- human units h,m,s to seconds
-	local hu = { h = 60 * 60, m = 60, s = 1 }
-	s = 0
-	for unit, mult in pairs(hu) do
-		local _, _, num = string.find(hstr, "(%d+)" .. unit)
-		if num then
-			s = s + tonumber(num) * mult
-		end
-	end
-	return s
-end
-
--- calc aligned timeout in sec
-local function aligned_timeout(align)
-	local time = os.time()
-	local atout = align * math.ceil(time / align) - time
-	return atout
-end
-
--- read lua-settings/osd-clock.conf
+-- 读取用户配置 ~/.config/mpv/script-opts/osd-clock.conf
 options.read_options(cfg, "osd-clock")
 
--- log active config
-mp.msg.verbose("cfg = " .. utils.to_string(cfg))
-
--- OSD show clock
-local function osd_clock()
-	local s = os.date(cfg.format)
-	mp.osd_message(s, cfg.duration)
+-- 将人类可读时间转换为秒 (如 "1h30m" → 5400)
+local function parse_time(str)
+    local num = tonumber(str)
+    if num then
+        return num
+    end
+    
+    local total = 0
+    for value, unit in str:gmatch("(%d+)([hms])") do
+        local mult = ({ h = 3600, m = 60, s = 1 })[unit] or 1
+        total = total + tonumber(value) * mult
+    end
+    return total > 0 and total or 900  -- 默认15分钟
 end
 
--- non empty interval enables osd clock
-if cfg.interval then
-	-- log
-	mp.msg.info("interval:" .. cfg.interval .. ", format:" .. cfg.format)
+-- 计算对齐到下一个间隔的延迟
+local function calc_delay(interval)
+    local now = os.time()
+    return interval * math.ceil(now / interval) - now
+end
 
-	-- osd timer
-	local osd_timer = mp.add_periodic_timer(htime2sec(cfg.interval), osd_clock)
-	osd_timer:stop()
+-- 显示时钟
+local function show_clock()
+    mp.osd_message(os.date(cfg.format), cfg.duration)
+end
 
-	-- start osd timer exactly at interval boundary
-	local delay = aligned_timeout(htime2sec(cfg.interval))
+-- 主逻辑
+local interval_sec = parse_time(cfg.interval)
 
-	-- delayed start
-	mp.add_timeout(delay, function()
-		osd_timer:resume()
-		osd_clock()
-	end)
+if interval_sec <= 0 then
+    msg.warn("间隔无效，OSD时钟已禁用")
+    return
+end
 
-	-- log startup delay for osd timer
-	mp.msg.verbose("for osd_interval:" .. cfg.interval .. " calculated startup delay:" .. delay)
+msg.info(string.format("OSD时钟已启动: 间隔=%ds, 格式=%s", interval_sec, cfg.format))
 
-	-- optional bind to the key
-	if cfg.key then
-		mp.add_key_binding(cfg.key, cfg.name, osd_clock)
-		-- log binding
-		mp.msg.verbose("key:'" .. cfg.key .. "' bound to '" .. cfg.name .. "'")
-	end
+-- 创建定时器但不启动
+local timer = mp.add_periodic_timer(interval_sec, show_clock)
+timer:stop()
+
+-- 对齐到整点启动
+local delay = calc_delay(interval_sec)
+mp.add_timeout(delay, function()
+    timer:resume()
+    show_clock()
+end)
+
+msg.verbose(string.format("首次显示将在 %d 秒后", delay))
+
+-- 绑定手动触发键
+if cfg.key and cfg.key ~= "" then
+    mp.add_key_binding(cfg.key, cfg.name, show_clock)
+    msg.verbose(string.format("已绑定 '%s' 键到 %s", cfg.key, cfg.name))
 end

@@ -35,6 +35,7 @@
 (when (memq window-system '(mac ns))
   (rc/require 'exec-path-from-shell)
   (exec-path-from-shell-initialize))
+(setq select-enable-clipboard t)
 
 ;; Appearance
 (defun rc/get-default-font ()
@@ -82,6 +83,7 @@
       dired-dwim-target t
       dired-listing-switches "-alh"
       dired-mouse-drag-files t)
+(setq dired-use-ls-dired nil)
 
 ;; Helm
 (rc/require 'helm)
@@ -436,7 +438,7 @@
                           (-partial 'rc/autocommit-beat (rc/autocommit--id)))))
 
 ;; Extra Modes
-(rc/require 'scala-mode 'd-mode 'yaml-mode 'glsl-mode 'tuareg 'lua-mode 'less-css-mode
+(rc/require 'scala-mode 'd-mode 'yaml-mode 'json-mode 'glsl-mode 'tuareg 'lua-mode 'less-css-mode
             'graphviz-dot-mode 'clojure-mode 'cmake-mode 'rust-mode 'csharp-mode 'nim-mode
             'jinja2-mode 'markdown-mode 'purescript-mode 'nix-mode 'dockerfile-mode 'toml-mode
             'nginx-mode 'kotlin-mode 'go-mode 'php-mode 'qml-mode 'ag 'elpy 'typescript-mode
