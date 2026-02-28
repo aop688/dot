@@ -39,7 +39,7 @@
 
 ;; Appearance
 (defun rc/get-default-font ()
-  (cond ((eq system-type 'darwin) "Menlo-14")
+  (cond ((eq system-type 'darwin) "Iosevka Berkeley Mono-14")
         ((eq system-type 'windows-nt) "Consolas-13")
         ((eq system-type 'gnu/linux) "Iosevka-20")))
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
