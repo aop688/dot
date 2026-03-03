@@ -51,7 +51,7 @@
 (show-paren-mode 1)
 (rc/require-theme 'gruber-darker)
 (set-face-attribute 'minibuffer-prompt nil :foreground "yellow")
-(setq initial-scratch-message ";; Happy Hacking!\n")
+(setq initial-scratch-message "")
 (when (version<= "26.0.50" emacs-version)
   (setq display-line-numbers-type 'relative)
   (global-display-line-numbers-mode))
@@ -62,7 +62,7 @@
               tab-width 4
               indent-tabs-mode nil
               compilation-scroll-output 'first-error
-              default-input-method "russian-computer")
+              default-input-method "chinese-py")
 (setq confirm-kill-emacs 'y-or-n-p
       visible-bell (equal system-type 'windows-nt))
 (windmove-default-keybindings)
