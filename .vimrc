@@ -2,6 +2,7 @@
 "" Last update  2019-11-23
 
 set nocompatible  " Disable vi-compatibility.
+set clipboard=unnamed,unnamedplus  " Use system clipboard
 set encoding=utf-8 
 set fileencodings=utf-8,gb18030,utf-16,big5
 set confirm
