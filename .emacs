@@ -26,6 +26,8 @@
 (require 'dash)
 (require 'dash-functional)
 
+(rc/require-theme 'gruber-darker)
+
 ;; macOS
 (setq mac-command-modifier 'meta
       mac-option-modifier 'super
@@ -40,7 +42,6 @@
 ;; Appearance
 (defun rc/get-default-font ()
   (cond ((eq system-type 'darwin) "Iosevka Berkeley Mono-14")
-        ((eq system-type 'windows-nt) "Consolas-13")
         ((eq system-type 'gnu/linux) "Iosevka-20")))
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
 (when (display-graphic-p)
@@ -49,9 +50,10 @@
 (menu-bar-mode 0)
 (column-number-mode 1)
 (show-paren-mode 1)
-(rc/require-theme 'gruber-darker)
+
 (set-face-attribute 'minibuffer-prompt nil :foreground "yellow")
 (setq initial-scratch-message "")
+
 (when (version<= "26.0.50" emacs-version)
   (setq display-line-numbers-type 'relative)
   (global-display-line-numbers-mode))
@@ -67,10 +69,15 @@
       visible-bell (equal system-type 'windows-nt))
 (windmove-default-keybindings)
 (setq x-alt-keysym 'meta)
+(global-set-key (kbd "C-x f") 'find-file)
+(global-set-key (kbd "C-x C-b") 'switch-to-buffer)
+
+;; Utility Functions
+(global-set-key (kbd "C-x C-g") 'find-file-at-point)
+(global-set-key (kbd "C-c i m") 'imenu)
 
 ;; ido & smex
 (rc/require 'smex 'ido-completing-read+)
-(require 'ido-completing-read+)
 (ido-mode 1)
 (ido-everywhere 1)
 (ido-ubiquitous-mode 1)
@@ -84,6 +91,7 @@
       dired-listing-switches "-alh"
       dired-mouse-drag-files t)
 (setq dired-use-ls-dired nil)
+(global-set-key (kbd "C-x C-d") 'dired)
 
 ;; Helm
 (rc/require 'helm)
@@ -100,8 +108,8 @@
 ;; Magit
 (rc/require 'cl-lib 'magit)
 (setq magit-auto-revert-mode nil)
-(global-set-key (kbd "C-c m s") 'magit-status)
-(global-set-key (kbd "C-c m l") 'magit-log)
+;;(global-set-key (kbd "C-c m s") 'magit-status)
+;;(global-set-key (kbd "C-c m l") 'magit-log)
 
 ;; Company
 (rc/require 'company)
@@ -179,14 +187,6 @@
 (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 (add-hook 'haskell-mode-hook 'haskell-doc-mode)
 
-;; TypeScript
-(rc/require 'typescript-mode 'tide)
-(add-to-list 'auto-mode-alist '("\\.mts\\'" . typescript-mode))
-(defun rc/turn-on-tide-and-flycheck ()
-  (tide-setup)
-  (flycheck-mode 1))
-(add-hook 'typescript-mode-hook 'rc/turn-on-tide-and-flycheck)
-
 ;; Assembly
 (require 'basm-mode nil t)
 (require 'fasm-mode nil t)
@@ -199,11 +199,6 @@
 
 ;; TRAMP
 (setq tramp-auto-save-directory "/tmp")
-
-;; PowerShell
-(rc/require 'powershell)
-(add-to-list 'auto-mode-alist '("\\.ps1\\'" . powershell-mode))
-(add-to-list 'auto-mode-alist '("\\.psm1\\'" . powershell-mode))
 
 ;; LaTeX
 (add-hook 'tex-mode-hook (lambda () (add-to-list 'tex-verbatim-environments "code")))
@@ -226,10 +221,6 @@
   (ansi-color-apply-on-region compilation-filter-start (point))
   (read-only-mode 'toggle))
 (add-hook 'compilation-filter-hook 'rc/colorize-compilation-buffer)
-
-;; Utility Functions
-(global-set-key (kbd "C-x C-g") 'find-file-at-point)
-(global-set-key (kbd "C-c i m") 'imenu)
 
 (defun rc/buffer-file-name ()
   (if (equal major-mode 'dired-mode) default-directory (buffer-file-name)))
