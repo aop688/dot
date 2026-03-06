@@ -51,8 +51,8 @@
 
 (set-face-attribute 'minibuffer-prompt nil :foreground "yellow")
 (setq initial-scratch-message "")
-;;(setq display-line-numbers-type 'relative)
-;;(global-display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode)
 
 ;; Basic Settings
 (setq-default inhibit-splash-screen t
@@ -127,10 +127,9 @@
 
 ;; Paredit
 (rc/require 'paredit)
-(defun rc/turn-on-paredit () (paredit-mode 1))
 (dolist (hook '(emacs-lisp-mode-hook clojure-mode-hook lisp-mode-hook
                 common-lisp-mode-hook scheme-mode-hook racket-mode-hook))
-  (add-hook hook 'rc/turn-on-paredit))
+  (add-hook hook (lambda () (paredit-mode 1))))
 
 ;; Move Text
 (rc/require 'move-text)
@@ -138,7 +137,6 @@
 (global-set-key (kbd "M-n") 'move-text-down)
 
 (defun copy-whole-line ()
-  "Copy the current line to kill ring."
   (interactive)
   (kill-ring-save (line-beginning-position)
                   (line-beginning-position 2)))
