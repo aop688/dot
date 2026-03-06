@@ -22,9 +22,7 @@
   (let ((theme-package (intern (concat (symbol-name theme) "-theme"))))
     (rc/require theme-package)
     (load-theme theme t)))
-(rc/require 'dash 'dash-functional)
-(require 'dash)
-(require 'dash-functional)
+;;(rc/require 'dash 'dash-functional)
 
 (rc/require-theme 'gruber-darker)
 
@@ -53,10 +51,8 @@
 
 (set-face-attribute 'minibuffer-prompt nil :foreground "yellow")
 (setq initial-scratch-message "")
-
-(when (version<= "26.0.50" emacs-version)
-  (setq display-line-numbers-type 'relative)
-  (global-display-line-numbers-mode))
+;;(setq display-line-numbers-type 'relative)
+;;(global-display-line-numbers-mode)
 
 ;; Basic Settings
 (setq-default inhibit-splash-screen t
@@ -108,8 +104,8 @@
 ;; Magit
 (rc/require 'cl-lib 'magit)
 (setq magit-auto-revert-mode nil)
-;;(global-set-key (kbd "C-c m s") 'magit-status)
-;;(global-set-key (kbd "C-c m l") 'magit-log)
+(global-set-key (kbd "C-c m s") 'magit-status)
+(global-set-key (kbd "C-c m l") 'magit-log)
 
 ;; Company
 (rc/require 'company)
@@ -140,6 +136,13 @@
 (rc/require 'move-text)
 (global-set-key (kbd "M-p") 'move-text-up)
 (global-set-key (kbd "M-n") 'move-text-down)
+
+(defun copy-whole-line ()
+  "Copy the current line to kill ring."
+  (interactive)
+  (kill-ring-save (line-beginning-position)
+                  (line-beginning-position 2)))
+(global-set-key (kbd "C-c l") 'copy-whole-line)
 
 ;; C/C++
 (setq-default c-basic-offset 4
