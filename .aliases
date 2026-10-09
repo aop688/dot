@@ -1,0 +1,56 @@
+# ~/.aliases
+# bash 和 zsh 共用的 alias 和简单函数，由 ~/.bashrc 和 ~/.zshrc 加载。
+# 只用 bash/zsh 通用的语法，不要在这里写 shopt、setopt、PS1 之类的 shell 专用设置。
+
+# ---------------------------------------------------------------- kitty
+if [ "$TERM" = "xterm-kitty" ]; then
+  alias ssh="TERM=xterm-256color ssh"                 # kitty ssh fix
+  alias icat="kitty +kitten icat --align=left"        # kitty icat
+fi
+
+# ---------------------------------------------------------------- aliases
+alias ls="ls --color=auto"
+alias l="ls -lh"
+alias la="ls -alh"
+alias df='df -h'
+alias more='less'
+alias grep="grep --color=auto"
+alias egrep="egrep --color=auto"
+alias fgrep="fgrep --color=auto"
+#alias cp='cp -v'
+#alias mv='mv -v'
+alias rm="rm -i"
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+
+alias clmod="find . -type f -print0 | xargs -0 chmod 644"
+alias cldir="find . -type d -print0 | xargs -0 chmod 744"
+alias clfile="clmod && cldir"
+
+# macOS
+alias awake='caffeinate -d'
+alias nosleep='caffeinate -d -i -t 1800'
+alias batt="pmset -g batt"
+#alias batt="pmset -g batt | grep -Eo '\d+%'"
+#alias ipen0="ipconfig getifaddr en0"
+alias aplay="clear && ls . | while read;do basename \"\$REPLY\";afplay -q 1 \"\$REPLY\";wait;done"
+#alias mpv="/Applications/mpv.app/Contents/MacOS/mpv"
+
+# proxy
+#alias x="/usr/local/bin/trojan -c /usr/local/etc/config.json"
+alias x="~/.xray-core/xray"
+alias pon="networksetup -setsocksfirewallproxystate Wi-Fi on;networksetup -setwebproxystate Wi-Fi on;networksetup -setsecurewebproxystate Wi-Fi on"
+alias poff="networksetup -setsocksfirewallproxystate Wi-Fi off;networksetup -setwebproxystate Wi-Fi off;networksetup -setsecurewebproxystate Wi-Fi off"
+alias epp="export https_proxy=http://127.0.0.1:1081;export http_proxy=http://127.0.0.1:1081;export all_proxy=socks5://127.0.0.1:1080"
+
+# ---------------------------------------------------------------- functions
+take() { mkdir -p "$1" && cd "$1"; }
+
+lsnc() {
+  lsof -i -n -P -c 16 | awk '{print $1 "\t\t" $9 "  " $10}' | uniq | grep -v COMMAND | egrep -v "\->127.0.0.1:.*"
+}
+
+#ip() { ipconfig getifaddr "$1"; }

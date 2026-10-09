@@ -1,0 +1,4 @@
+git clone --bare git@github.com:you/dotfiles.git $HOME/.cfg
+alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+config checkout   # pulls all tracked files into $HOME
+config config --local status.showUntrackedFiles no

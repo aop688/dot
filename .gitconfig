@@ -1,0 +1,43 @@
+[user]
+	name = apt
+	email = 1675503+aop688@users.noreply.github.com
+[alias]
+    br = branch
+    cf = config
+    ci = commit 
+    co = checkout
+    dt = difftool
+    dump = cat-file -p
+    hist = log --pretty=format:\"%C(yellow)%h %C(red)%d %C(reset)%s %C(green)[%an] %C(blue)%ad\" --topo-order --graph --date=short
+    last = log -1 HEAD
+    latest = for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short) [%(committername)]'
+    line = log --oneline
+    ls = log --pretty=format:\"%C(yellow)%h %C(blue)%ad %C(red)%d %C(reset)%s %C(green)[%cn]\" --decorate --date=short
+    md = commit --amend
+    mg = merge
+    mt = mergetool
+    st = status
+    type = cat-file -t
+	cfg = !git --git-dir=$HOME/.cfg/ --work-tree=$HOME
+[core]
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[http]
+#	proxy = socks5://127.0.0.1:1080
+[https]
+#	proxy = socks5://127.0.0.1:1080
+[diff]
+    tool = kitty
+    guitool = kitty.gui
+[difftool]
+    prompt = false
+    trustExitCode = true
+[difftool "kitty"]
+    cmd = kitty +kitten diff $LOCAL $REMOTE
+[difftool "kitty.gui"]
+    cmd = kitty kitty +kitten diff $LOCAL $REMOTE
