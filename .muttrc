@@ -1,0 +1,74 @@
+set from = "apt <apt@allro.cn>"
+set realname="apt"
+
+set smtp_url="smtp://apt@mail.allro.cn:587"
+set pop_host="pops://baibai@mail.allro.cn:8996"
+set smtp_pass=`. ~/.secrets; printf %s "$MAIL_PASS"`
+set pop_pass=`. ~/.secrets; printf %s "$MAIL_PASS"`
+
+set mbox_type=Maildir
+set folder = "~/.mail/"
+set spoolfile = "+inbox"
+set record = "+sent"
+set postponed="+postponed"
+set trash = "+trash"
+
+#set attribution="On %d, %n wrote:"
+set sort = reverse-date-received
+set help = no
+
+#set send_charset="utf-8"
+#set charset="utf-8"
+#set assumed_charset="utf-8"
+#set rfc2047_parameters=yes
+
+set edit_headers=yes
+set editor='vim + -c "set textwidth=128"'
+set forward_format="Fwd: %s"
+set forward_quote=yes
+
+set date_format="%Y-%m-%d %H:%M"
+set index_format="%4C %Z %{%m-%d} %-20.20L %?M?(#%02M)&  ? %s%> %5c"
+set pager_format="%C/%m %[%b %d %T] %?X?(A:%X)? %> %s"
+set folder_format="%2C %t %N %8s %d %f"
+set status_format="───[ folder: %f ]───[%r%m messages%?n? (%n new)?%?d? (%d to delete)?%?t? (%t tagged)? ]───%>─%?p?( %p postponed )?───"
+
+auto_view text/html
+alternative_order text/plain text/enriched text/html
+
+color normal        color223        default
+color error         color167        default
+color tilde         color239        default
+color message       color223        default
+color markers       color124        default
+color attachment    color142        default
+color search        color235        color214
+color status        color223        default
+color indicator     color235        color214
+color index         color223        default        ~A
+color index         color142        default        ~N      # new mail
+color index         color208        default        ~O      # old, unread
+color index         color167        default        ~F      # flagged
+color index         color109        default        ~T      # tagged
+color index         color246        default        ~D      # deleted
+
+mono  header        bold                            "^(From|Subject|Date|To|Cc|Bcc):"
+color hdrdefault    color223        default
+color header        color109        default        "^(From|To|Cc|Bcc)"
+color header        color175        default        "^(Subject|Date)"
+color header        color142        default        "^X-.*:"
+
+color quoted        color246        default
+color quoted1       color109        default
+color quoted2       color142        default
+color quoted3       color208        default
+color quoted4       color175        default
+
+color signature     color246        default
+color bold          color223        default
+
+color body          color109        default        "([a-z][a-z0-9+-]*://[^ ]+)"
+color body          color214        default        "[-a-z_0-9.]+@[-a-z_0-9.]+"
+color body          color167        default        "(TODO|FIXME|XXX|BUG|HACK)"
+color body          color142        default        "[+][-+]?[0-9]+\.[0-9]+"
+color body          color88         default        "\-[-+]?[0-9]+\.[0-9]+"
