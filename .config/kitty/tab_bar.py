@@ -1,81 +1,76 @@
-import datetime
+# ~/.config/kitty/tab_bar.py
+
 import subprocess
-from kitty.boss import get_boss
-from kitty.fast_data_types import Screen, get_options, add_timer
-from kitty.tab_bar import (
-    DrawData,
-    ExtraData,
-    Formatter,
-    TabBarData,
-    as_rgb,
-    draw_attributed_string,
-    draw_tab_with_powerline,
-)
+import time
+from datetime import datetime
+
+from kitty.fast_data_types import Screen, add_timer, get_boss
+from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb
 from kitty.utils import color_as_int
 
-opts = get_options()
+ACCENT = as_rgb(0x4AA3DF)      # 活动标签序号（蓝）
+ACTIVE_FG = as_rgb(0xECF0F1)   # 活动标签标题
+DIM_FG = as_rgb(0x767676)      # 非活动标签 / 右侧状态
+ALERT_FG = as_rgb(0xF1C40F)    # 有响铃/活动提示（黄）
+GAP = "  "                    # 标签之间的间距
+SHOW_GIT = True
+SHOW_TIME = True
+TIME_FORMAT = "%H:%M"
+REFRESH_SECONDS = 5.0
 
-CLOCK_FG = as_rgb(color_as_int(opts.active_tab_foreground))
-CLOCK_BG = as_rgb(color_as_int(opts.active_tab_background))
+_timer_id = None
+_git_cache = {"cwd": None, "branch": "", "ts": 0.0}
 
-def get_battery_info():
-    try:
-        result = subprocess.run(["pmset", "-g", "batt"], capture_output=True, text=True)
-        output = result.stdout
 
-        battery_level = None
-        charging_status = None
-        time_to_full = None
-
-        for line in output.splitlines():
-            if "InternalBattery" in line:
-                parts = line.split("\t")[1].split("; ")
-                battery_level = int(parts[0].replace("%", ""))
-                charging_status = parts[1].strip()
-                if len(parts) > 2:
-                    time_to_full = parts[2].strip()
-
-        return {
-            "battery_level": battery_level,
-            "charging_status": charging_status,
-            "time_to_full": time_to_full
-        }
-    except Exception as e:
-        print(f"Error getting battery info: {e}")
-    return None
-
-def _draw_right_status(screen: Screen, is_last: bool, draw_data: DrawData) -> int:
-    if not is_last:
-        return screen.cursor.x
-
-    draw_attributed_string(Formatter.reset, screen)
-    battery_info = get_battery_info()
-    percent = battery_info['battery_level']
-    cells = [
-        (CLOCK_FG, CLOCK_BG, str(percent) + "% "),
-        (CLOCK_FG, CLOCK_BG, datetime.datetime.now().strftime("%H:%M ")),
-    ]
-
-    right_status_length = 0
-    for _, _, cell in cells:
-        right_status_length += len(cell)
-
-    draw_spaces = screen.columns - screen.cursor.x - right_status_length
-    if draw_spaces > 0:
-        screen.draw(" " * draw_spaces)
-
-    for fg, bg, cell in cells:
-        screen.draw(cell)
-
-    screen.cursor.x = max(screen.cursor.x, screen.columns - right_status_length)
-    return screen.cursor.x
-
-def _redraw_tab_bar(_) -> None:
+def _redraw(_):
     tm = get_boss().active_tab_manager
     if tm is not None:
         tm.mark_tab_bar_dirty()
 
-timer_id = None
+
+def _git_branch() -> str:
+    window = get_boss().active_window
+    cwd = window.cwd_of_child if window else None
+    if not cwd:
+        return ""
+    now = time.time()
+    if _git_cache["cwd"] == cwd and now - _git_cache["ts"] < 3:
+        return _git_cache["branch"]
+    branch = ""
+    try:
+        out = subprocess.run(
+            ["git", "-C", cwd, "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True, text=True, timeout=0.3,
+        )
+        if out.returncode == 0:
+            branch = out.stdout.strip()
+    except Exception:
+        pass
+    _git_cache.update(cwd=cwd, branch=branch, ts=now)
+    return branch
+
+
+def _draw_right(screen: Screen, is_last: bool) -> None:
+    if not is_last:
+        return
+    parts = []
+    if SHOW_GIT:
+        b = _git_branch()
+        if b:
+            parts.append(b)
+    if SHOW_TIME:
+        parts.append(datetime.now().strftime(TIME_FORMAT))
+    if not parts:
+        return
+    text = "  ·  ".join(parts) + "  "
+    spaces = screen.columns - screen.cursor.x - len(text)
+    if spaces <= 0:
+        return
+    screen.cursor.bold = False
+    screen.cursor.fg = DIM_FG
+    screen.draw(" " * spaces + text)
+    screen.cursor.fg = 0
+
 
 def draw_tab(
     draw_data: DrawData,
@@ -87,11 +82,35 @@ def draw_tab(
     is_last: bool,
     extra_data: ExtraData,
 ) -> int:
-    end = draw_tab_with_powerline(
-        draw_data, screen, tab, before, max_title_length, index, is_last, extra_data
-    )
-    global timer_id
-    if timer_id is None:
-        timer_id = add_timer(_redraw_tab_bar, 2.0, True)
-    end = _draw_right_status(screen, is_last, draw_data)
-    return end
+    global _timer_id
+    if _timer_id is None:
+        _timer_id = add_timer(_redraw, REFRESH_SECONDS, True)
+
+    bar_bg = as_rgb(color_as_int(draw_data.default_bg))
+    screen.cursor.bg = bar_bg
+
+    if index == 1:
+        screen.draw("  ")
+
+    alert = tab.needs_attention or tab.has_activity_since_last_focus
+    num_fg = ACCENT if tab.is_active else (ALERT_FG if alert else DIM_FG)
+    title_fg = ACTIVE_FG if tab.is_active else DIM_FG
+
+    room = max_title_length - len(str(index)) - 1
+    title = tab.title
+    if room > 1 and len(title) > room:
+        title = title[: room - 1] + "…"
+
+    screen.cursor.bold = tab.is_active
+    screen.cursor.fg = num_fg
+    screen.draw(str(index))
+    screen.cursor.fg = title_fg
+    screen.draw(f" {title}")
+
+    screen.cursor.bold = False
+    screen.cursor.fg = 0
+    if not is_last:
+        screen.draw(GAP)
+
+    _draw_right(screen, is_last)
+    return screen.cursor.x

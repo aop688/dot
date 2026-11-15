@@ -5,6 +5,7 @@
 if [ "$TERM" = "xterm-kitty" ]; then
   alias ssh="TERM=xterm-256color ssh"                 # kitty ssh fix
   alias icat="kitty +kitten icat --align=left"        # kitty icat
+  alias top='TERM=xterm-256color top'
 fi
 
 alias ls="ls --color=auto"
